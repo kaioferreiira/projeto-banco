@@ -33,7 +33,7 @@ public class ProjetoBancoApplication implements CommandLineRunner {
 
 
 		Cliente cliente1Banco = clienteRepository.findById(1).get();
-		ContaCorrente conta = new ContaCorrente(null, 250.0, cliente1Banco);
+		ContaCorrente conta = new ContaCorrente(null, 200000.0, cliente1Banco);
 
 		contaCorrenteRepository.save(conta);
 	}

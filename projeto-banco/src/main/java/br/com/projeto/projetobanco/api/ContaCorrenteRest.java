@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -51,10 +52,28 @@ public class ContaCorrenteRest {
 
     }
 
+    @GetMapping("/realiza-saque/{id}")
+    public ResponseEntity<Void> realizaSaque(@PathVariable Integer id, @RequestParam Double saque){
+
+        contaCorrenteService.realizaSaque(id, saque);
+
+        return ResponseEntity.ok().build();
+    }
+
+
+    @GetMapping("/realiza-deposito/{id}")
+    public ResponseEntity<Void> realizaDeposito(@PathVariable Integer id, @RequestParam Double valorReal,
+            Double valorEnvelope){
+
+            contaCorrenteService.findById(id);
+
+        return ResponseEntity.ok().build();
+    }
 
 
 
-
+//    Extrato das últimas transações
+//    Realizar depósito (Irá receber um envelope com valor informado e valor real, se valor real for diferente do informado, não deve realizar depósito)
 
 
 }

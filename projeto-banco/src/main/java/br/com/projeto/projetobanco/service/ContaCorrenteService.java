@@ -1,5 +1,6 @@
 package br.com.projeto.projetobanco.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -7,8 +8,10 @@ import java.util.Optional;
 
 import br.com.projeto.projetobanco.entity.Cliente;
 import br.com.projeto.projetobanco.entity.ContaCorrente;
+import br.com.projeto.projetobanco.entity.Transacao;
 import br.com.projeto.projetobanco.entity.dto.ClienteDTO;
 import br.com.projeto.projetobanco.entity.dto.ContaCorrenteDTO;
+import br.com.projeto.projetobanco.entity.enums.OperacaoEnum;
 import br.com.projeto.projetobanco.repository.ContaCorrenteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,7 @@ public class ContaCorrenteService {
 
     private ContaCorrenteRepository contaCorrenteRepository;
     private ClienteService clienteService;
+    private TransacaoService transacaoService;
 
     @Autowired
     public ContaCorrenteService(ContaCorrenteRepository contaCorrenteRepository, ClienteService clienteService) {
@@ -63,6 +67,65 @@ public class ContaCorrenteService {
         return contaCorrenteDTO;
 
     }
+
+
+    public void  realizaSaque(Integer id, Double  saque){
+
+        ContaCorrenteDTO contaCorrenteDTO = findById(id);
+
+        if (contaCorrenteDTO.getSaldo() < saque){
+            throw new RuntimeException(" Saldo insuficiente! ");
+        }
+
+        double novoSaldo = contaCorrenteDTO.getSaldo() - saque;
+
+        contaCorrenteDTO.setSaldo(novoSaldo);
+
+        salvarContaCorrente(contaCorrenteDTO);
+
+        registraTransacao(contaCorrenteDTO, saque,  OperacaoEnum.DEBITO);
+
+
+    }
+
+    public void registraTransacao(ContaCorrenteDTO contaCorrenteDTO, Double valorOperacao, OperacaoEnum tipo){
+
+        Transacao transacao = new Transacao();
+
+
+        ContaCorrente contaCorrente = new ContaCorrente(contaCorrenteDTO.getId(), contaCorrenteDTO.getSaldo(),
+                contaCorrenteDTO.getCliente());
+
+        transacao.setData(LocalDateTime.now());
+        transacao.setConta(contaCorrente);
+        transacao.setTipoOperacao(tipo);
+
+        transacaoService.salvarTransacao(transacao);
+
+    }
+
+
+
+    public void  realizaDeposito(Integer id, Double valorReal, Double valorEnvelope ){
+
+        if (valorReal != valorEnvelope){
+            throw new RuntimeException(" Valor informado "+ valorReal + "é diferente do valor contido no envelope! " + valorEnvelope);
+        }
+
+        ContaCorrenteDTO contaCorrenteDTO = findById(id);
+
+        double novoSaldo = contaCorrenteDTO.getSaldo() + valorReal;
+
+
+
+        contaCorrenteDTO.setSaldo(novoSaldo);
+
+        salvarContaCorrente(contaCorrenteDTO);
+
+    }
+
+
+
 
     public void salvarContaCorrente(ContaCorrenteDTO contaDTO){
 
