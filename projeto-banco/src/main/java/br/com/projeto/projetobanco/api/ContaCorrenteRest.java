@@ -52,7 +52,7 @@ public class ContaCorrenteRest {
 
     }
 
-    @GetMapping("/realiza-saque/{id}")
+    @PostMapping("/realiza-saque/{id}")
     public ResponseEntity<Void> realizaSaque(@PathVariable Integer id, @RequestParam Double saque){
 
         contaCorrenteService.realizaSaque(id, saque);
@@ -61,7 +61,7 @@ public class ContaCorrenteRest {
     }
 
 
-    @GetMapping("/realiza-deposito/{id}")
+    @PostMapping("/realiza-deposito/{id}")
     public ResponseEntity<Void> realizaDeposito(@PathVariable Integer id, @RequestParam Double valorReal,
             Double valorEnvelope){
 

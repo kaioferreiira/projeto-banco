@@ -24,9 +24,10 @@ public class ContaCorrenteService {
     private TransacaoService transacaoService;
 
     @Autowired
-    public ContaCorrenteService(ContaCorrenteRepository contaCorrenteRepository, ClienteService clienteService) {
+    public ContaCorrenteService(ContaCorrenteRepository contaCorrenteRepository, ClienteService clienteService, TransacaoService transacaoService) {
         this.contaCorrenteRepository = contaCorrenteRepository;
         this.clienteService = clienteService;
+        this.transacaoService = transacaoService;
     }
 
     public  List<ContaCorrenteDTO> findAll(){
@@ -81,7 +82,7 @@ public class ContaCorrenteService {
 
         contaCorrenteDTO.setSaldo(novoSaldo);
 
-        salvarContaCorrente(contaCorrenteDTO);
+        atualizarSaldoContaCorrente(contaCorrenteDTO);
 
         registraTransacao(contaCorrenteDTO, saque,  OperacaoEnum.DEBITO);
 
@@ -99,6 +100,7 @@ public class ContaCorrenteService {
         transacao.setData(LocalDateTime.now());
         transacao.setConta(contaCorrente);
         transacao.setTipoOperacao(tipo);
+        transacao.setValor(valorOperacao);
 
         transacaoService.salvarTransacao(transacao);
 
@@ -120,7 +122,7 @@ public class ContaCorrenteService {
 
         contaCorrenteDTO.setSaldo(novoSaldo);
 
-        salvarContaCorrente(contaCorrenteDTO);
+        atualizarSaldoContaCorrente(contaCorrenteDTO);
 
     }
 
@@ -142,6 +144,21 @@ public class ContaCorrenteService {
          ClienteDTO clienteDTO=  clienteService.findClienteCpf(contaDTO.getCliente().getCpf());
          Cliente clientaBanco = new Cliente(clienteDTO.getId(), clienteDTO.getNome(), clienteDTO.getCpf(),
                  clienteDTO.getRg(), clienteDTO.getDataNascimento());
+
+
+        ContaCorrente contaCorrente = new ContaCorrente(null, contaDTO.getSaldo(), clientaBanco);
+
+        contaCorrenteRepository.save(contaCorrente);
+    }
+
+    public void atualizarSaldoContaCorrente(ContaCorrenteDTO contaDTO){
+
+        Cliente cliente = contaDTO.getCliente();
+        clienteService.salvarCliente(cliente);
+
+        ClienteDTO clienteDTO=  clienteService.findClienteCpf(contaDTO.getCliente().getCpf());
+        Cliente clientaBanco = new Cliente(clienteDTO.getId(), clienteDTO.getNome(), clienteDTO.getCpf(),
+                clienteDTO.getRg(), clienteDTO.getDataNascimento());
 
 
         ContaCorrente contaCorrente = new ContaCorrente(null, contaDTO.getSaldo(), clientaBanco);
